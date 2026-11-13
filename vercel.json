@@ -7,7 +7,6 @@
   },
   "rewrites": [
     { "source": "/api/blob-upload", "destination": "/api/blob-upload" },
-    { "source": "/(.*)", "destination": "/api/index.py" }
+    { "source": "/(.*)", "destination": "/api/index" }
   ]
 }
-
