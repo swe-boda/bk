@@ -1,0 +1,9 @@
+books/
+out/
+__pycache__/
+*.pyc
+.vercel/
+node_modules/
+.env
+.env.local
+

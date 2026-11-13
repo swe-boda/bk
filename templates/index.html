@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ختم المذكرات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0f17; --surface:#121826; --surface2:#171f30; --surface3:#1e293b;
+    --line:rgba(255,255,255,.09); --text:#f1f5f9; --muted:#94a3b8;
+    --accent:#10b981; --accent2:#38bdf8; --err:#f87171; --warn:#fbbf24;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; font-family:Cairo,Tahoma,sans-serif; color:var(--text);
+    background:
+      radial-gradient(900px 500px at 90% -10%, rgba(16,185,129,.16), transparent 60%),
+      radial-gradient(800px 500px at 0% 110%, rgba(56,189,248,.14), transparent 60%),
+      var(--bg);
+    padding:28px 16px 60px; display:flex; justify-content:center;
+  }
+  .app{width:100%; max-width:780px}
+  header{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    gap:12px; margin-bottom:20px;
+  }
+  .brand h1{margin:0; font-size:26px; font-weight:800; line-height:1.2}
+  .brand h1 span{
+    background:linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .brand p{margin:4px 0 0; color:var(--muted); font-size:13px}
+  .pill{
+    display:inline-flex; align-items:center; gap:7px; padding:6px 13px; border-radius:999px;
+    font-size:12px; font-weight:700; background:var(--surface); border:1px solid var(--line); color:var(--muted);
+  }
+  .dot{width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 8px var(--accent)}
+
+  .tabs{
+    display:flex; gap:8px; background:var(--surface); border:1px solid var(--line);
+    padding:5px; border-radius:14px; margin-bottom:18px;
+  }
+  .tab{
+    flex:1; padding:10px 14px; border:0; border-radius:10px; background:transparent;
+    color:var(--muted); font:inherit; font-weight:700; font-size:14px; cursor:pointer; transition:.18s;
+  }
+  .tab.active{
+    background:linear-gradient(90deg, rgba(16,185,129,.18), rgba(56,189,248,.16));
+    color:var(--text); border:1px solid rgba(16,185,129,.3);
+  }
+
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:20px;
+    padding:22px; box-shadow:0 22px 55px rgba(0,0,0,.4);
+  }
+  .grid2{display:grid; grid-template-columns:1.3fr 1fr; gap:14px}
+  @media(max-width:600px){.grid2{grid-template-columns:1fr}}
+
+  label{display:block; font-size:13px; font-weight:700; color:var(--muted); margin:0 0 6px}
+  input[type=text], input[type=password], input[type=search]{
+    width:100%; padding:11px 14px; border-radius:12px; border:1px solid var(--line);
+    background:var(--surface2); color:var(--text); font:inherit; font-size:15px; outline:none; transition:.18s;
+  }
+  input:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(16,185,129,.15)}
+  #code{direction:ltr; text-align:left; letter-spacing:1.5px; font-family:monospace; font-size:16px}
+
+  .sec-head{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    gap:8px; margin:18px 0 10px;
+  }
+  .sec-head .actions{display:flex; gap:8px; align-items:center}
+  .btn-sm{
+    padding:6px 12px; border-radius:9px; border:1px solid var(--line); background:var(--surface2);
+    color:var(--text); font:inherit; font-size:12px; font-weight:700; cursor:pointer; transition:.15s;
+    text-decoration:none; display:inline-flex; align-items:center; gap:5px;
+  }
+  .btn-sm:hover{border-color:var(--accent2); color:var(--accent2)}
+  .btn-sm.accent{background:rgba(16,185,129,.14); border-color:rgba(16,185,129,.35); color:#34d399}
+  .btn-sm.danger:hover{border-color:var(--err); color:var(--err)}
+
+  .dropzone{
+    border:1.5px dashed rgba(56,189,248,.35); border-radius:14px; padding:12px 14px;
+    background:rgba(56,189,248,.04); display:flex; align-items:center; justify-content:space-between;
+    gap:10px; margin-bottom:12px; transition:.18s; cursor:pointer;
+  }
+  .dropzone.drag{border-color:var(--accent); background:rgba(16,185,129,.1)}
+  .dropzone span{font-size:13px; color:var(--muted)}
+  .dropzone strong{color:var(--accent2)}
+
+  .books{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:9px; max-height:270px; overflow:auto; padding:2px}
+  .book{
+    display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px;
+    border:1px solid var(--line); background:var(--surface2); cursor:pointer; transition:.15s; user-select:none;
+  }
+  .book:hover{border-color:rgba(16,185,129,.45)}
+  .book.sel{border-color:var(--accent); background:rgba(16,185,129,.12)}
+  .chk{
+    width:20px; height:20px; border-radius:6px; border:2px solid var(--muted); flex:none;
+    display:grid; place-items:center; font-size:12px; font-weight:800; color:#042019; transition:.15s;
+  }
+  .book.sel .chk{background:var(--accent); border-color:var(--accent)}
+  .binfo{min-width:0; flex:1}
+  .btitle{font-size:13.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .bsize{font-size:11px; color:var(--muted)}
+  .bdel{
+    background:none; border:0; color:var(--muted); cursor:pointer; font-size:15px;
+    padding:4px 6px; border-radius:7px; flex:none; line-height:1;
+  }
+  .bdel:hover{color:var(--err); background:rgba(248,113,113,.12)}
+
+  .btn-main{
+    width:100%; margin-top:16px; padding:14px; border:0; border-radius:13px;
+    font:inherit; font-weight:800; font-size:16px; cursor:pointer; color:#042019;
+    background:linear-gradient(90deg, var(--accent), var(--accent2)); transition:.18s;
+  }
+  .btn-main:hover:not(:disabled){filter:brightness(1.07); transform:translateY(-1px)}
+  .btn-main:disabled{opacity:.55; cursor:wait}
+
+  .prog-wrap{height:6px; background:var(--surface2); border-radius:999px; overflow:hidden; margin-top:12px; display:none}
+  .prog-bar{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), var(--accent2)); transition:width .25s}
+  #msg{min-height:22px; margin-top:10px; font-size:13.5px; text-align:center}
+  #msg.ok{color:#34d399} #msg.err{color:var(--err)}
+
+  .result{
+    margin-top:18px; border:1px solid rgba(16,185,129,.3); background:rgba(16,185,129,.06);
+    border-radius:16px; padding:16px; display:none;
+  }
+  .result-head{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px}
+  .result-head h3{margin:0; font-size:15px}
+  .rlist{display:grid; gap:8px}
+  .ritem{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px;
+    padding:10px 12px; border-radius:11px; background:var(--surface2); border:1px solid var(--line);
+  }
+  .ritem .rname{font-size:13px; font-weight:700; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:360px}
+
+  .folders{display:grid; gap:10px; margin-top:12px}
+  .fcard{background:var(--surface2); border:1px solid var(--line); border-radius:14px; padding:14px}
+  .fhead{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px}
+  .ftitle{font-weight:800; font-size:15px}
+  .fmeta{font-size:12px; color:var(--muted); margin-top:2px}
+  .ffiles{display:grid; gap:6px; margin-top:10px; padding-top:10px; border-top:1px solid var(--line)}
+  .ffile{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; font-size:13px}
+  .empty{text-align:center; color:var(--muted); padding:24px; border:1px dashed var(--line); border-radius:12px; font-size:14px}
+
+  .overlay{
+    position:fixed; inset:0; background:rgba(7,10,16,.85); backdrop-filter:blur(8px);
+    display:none; place-items:center; padding:16px; z-index:50;
+  }
+  .overlay.show{display:grid}
+  .login-box{width:100%; max-width:380px}
+</style>
+</head>
+<body>
+<main class="app">
+  <header>
+    <div class="brand">
+      <h1>ختم <span>المذكرات</span></h1>
+      <p>اعمل نسخ متعددة الكتب لكل طالب واحفظها في فولدر خاص بيه</p>
+    </div>
+    <div class="pill">
+      <span class="dot"></span>
+      <span>{{ 'أونلاين · Vercel Blob' if use_blob else 'محلي على الجهاز' }}</span>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="stamp" type="button">ختم نسخة جديدة</button>
+    <button class="tab" data-tab="students" type="button">فولدرات الطلاب والروابط</button>
+  </nav>
+
+  <!-- تبويب الختم -->
+  <section id="panel-stamp" class="card">
+    <div class="grid2">
+      <div>
+        <label for="name">اسم الطالب</label>
+        <input id="name" type="text" autocomplete="off" placeholder="مثال: طارق يسري احمد محمد حافظ">
+      </div>
+      <div>
+        <label for="code">الكود (الباركود + الإيميل)</label>
+        <input id="code" type="text" autocomplete="off" inputmode="numeric" placeholder="31323004">
+      </div>
+    </div>
+
+    <div class="sec-head">
+      <label style="margin:0">اختار الكتب (<span id="selCount">0</span>)</label>
+      <div class="actions">
+        <button class="btn-sm" id="selectAll" type="button">تحديد الكل</button>
+        <button class="btn-sm" id="refreshBooks" type="button">↻ تحديث</button>
+      </div>
+    </div>
+
+    <div class="dropzone" id="dropzone">
+      <span>اسحب ملف PDF هنا أو <strong>اضغط لرفع كتاب جديد</strong></span>
+      <span style="font-size:12px">PDF فقط</span>
+      <input id="fileInput" type="file" accept=".pdf,application/pdf" hidden>
+    </div>
+
+    <div class="books" id="books"></div>
+
+    <button class="btn-main" id="go" type="button">اعمل النسخ</button>
+    <div class="prog-wrap" id="progWrap"><div class="prog-bar" id="progBar"></div></div>
+    <div id="msg"></div>
+
+    <div class="result" id="result">
+      <div class="result-head">
+        <h3 id="resTitle">نسخ الطالب جاهزة</h3>
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <button class="btn-sm accent" id="copyFolder" type="button">نسخ رابط الفولدر</button>
+          <a class="btn-sm" id="openFolder" href="#" target="_blank" rel="noopener">فتح الفولدر ↗</a>
+        </div>
+      </div>
+      <div class="rlist" id="resList"></div>
+    </div>
+  </section>
+
+  <!-- تبويب فولدرات الطلاب -->
+  <section id="panel-students" class="card" style="display:none">
+    <div class="grid2" style="grid-template-columns:1fr auto; align-items:center">
+      <input id="searchStudent" type="search" placeholder="ابحث باسم الطالب أو الكود...">
+      <button class="btn-sm" id="refreshStudents" type="button">↻ تحديث</button>
+    </div>
+    <div class="folders" id="folders"></div>
+  </section>
+</main>
+
+<!-- شاشة كلمة السر الاختيارية -->
+<div class="overlay {{ 'show' if auth_required and not authed else '' }}" id="authOverlay">
+  <div class="card login-box">
+    <h2 style="margin:0 0 8px; font-size:20px">تسجيل الدخول</h2>
+    <p style="margin:0 0 14px; font-size:13px; color:var(--muted)">اكتب كلمة السر عشان تدخل على لوحة الختم</p>
+    <input id="pwInput" type="password" placeholder="كلمة السر">
+    <button class="btn-main" id="pwBtn" type="button">دخول</button>
+    <div id="pwMsg" style="color:var(--err); font-size:13px; margin-top:10px; text-align:center"></div>
+  </div>
+</div>
+
+<script type="module">
+const USE_BLOB = {{ 'true' if use_blob else 'false' }};
+const $ = id => document.getElementById(id);
+
+let booksList = [];
+let selected = new Set(JSON.parse(localStorage.getItem("selectedBooks") || "[]"));
+let studentsCache = [];
+
+function fmtSize(bytes){ return (bytes / 1048576).toFixed(2) + " MB"; }
+function msg(text, cls=""){ const m=$("msg"); m.textContent=text; m.className=cls; }
+function absUrl(path){ return path.startsWith("http") ? path : (location.origin + path); }
+
+async function copyText(text, btn){
+  await navigator.clipboard.writeText(text);
+  const old = btn.textContent;
+  btn.textContent = "✓ اتنسخ";
+  setTimeout(() => btn.textContent = old, 1400);
+}
+
+// التبويبات
+document.querySelectorAll(".tab").forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+    t.classList.add("active");
+    const isStamp = t.dataset.tab === "stamp";
+    $("panel-stamp").style.display = isStamp ? "" : "none";
+    $("panel-students").style.display = isStamp ? "none" : "";
+    if (!isStamp) loadStudents();
+  };
+});
+
+// تسجيل الدخول
+async function doLogin(){
+  const pw = $("pwInput").value;
+  const r = await fetch("/api/auth", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({password: pw})
+  });
+  if(r.ok){
+    $("authOverlay").classList.remove("show");
+    loadBooks();
+  }else{
+    $("pwMsg").textContent = "كلمة السر غلط";
+  }
+}
+$("pwBtn").onclick = doLogin;
+$("pwInput").addEventListener("keydown", e => e.key === "Enter" && doLogin());
+
+// الكتب
+function renderBooks(){
+  const box = $("books");
+  box.innerHTML = "";
+  const valid = new Set(booksList.map(b => b.name));
+  selected = new Set([...selected].filter(x => valid.has(x)));
+  if(!selected.size && booksList.length) selected.add(booksList[0].name);
+  localStorage.setItem("selectedBooks", JSON.stringify([...selected]));
+  $("selCount").textContent = selected.size;
+  $("selectAll").textContent = (selected.size === booksList.length && booksList.length) ? "إلغاء الكل" : "تحديد الكل";
+
+  if(!booksList.length){
+    box.innerHTML = '<div class="empty" style="grid-column:1/-1">مفيش كتب لسه. ارفع كتاب PDF من المربع اللي فوق.</div>';
+    return;
+  }
+
+  for(const b of booksList){
+    const el = document.createElement("div");
+    el.className = "book" + (selected.has(b.name) ? " sel" : "");
+    el.innerHTML = '<div class="chk">✓</div><div class="binfo"><div class="btitle"></div><div class="bsize"></div></div><button class="bdel" title="حذف الكتاب" type="button">✕</button>';
+    el.querySelector(".btitle").textContent = b.title;
+    el.querySelector(".btitle").title = b.name;
+    el.querySelector(".bsize").textContent = fmtSize(b.size);
+    el.onclick = e => {
+      if(e.target.classList.contains("bdel")) return;
+      if(selected.has(b.name)) selected.delete(b.name); else selected.add(b.name);
+      renderBooks();
+    };
+    el.querySelector(".bdel").onclick = async e => {
+      e.stopPropagation();
+      if(!confirm(`تحذف كتاب "${b.title}"؟`)) return;
+      await fetch("/api/books/" + encodeURIComponent(b.name), {method:"DELETE"});
+      await loadBooks();
+    };
+    box.appendChild(el);
+  }
+}
+
+async function loadBooks(){
+  const r = await fetch("/api/books");
+  if(r.status === 401){ $("authOverlay").classList.add("show"); return; }
+  const data = await r.json();
+  booksList = data.books || [];
+  renderBooks();
+}
+
+$("selectAll").onclick = () => {
+  if(selected.size === booksList.length) selected.clear();
+  else booksList.forEach(b => selected.add(b.name));
+  renderBooks();
+};
+$("refreshBooks").onclick = loadBooks;
+
+// رفع كتاب جديد (يدعم الملفات الكبيرة أونلاين عبر Vercel Blob Client Upload)
+async function uploadBookFile(file){
+  if(!file) return;
+  if(!file.name.toLowerCase().endsWith(".pdf")) return msg("لازم الملف يكون PDF", "err");
+  msg(`بنرفع "${file.name}"...`);
+  try{
+    if(USE_BLOB){
+      const { upload } = await import("https://esm.sh/@vercel/blob@2/client");
+      await upload("books/" + file.name, file, {
+        access: "public",
+        handleUploadUrl: "/api/blob-upload",
+      });
+    }else{
+      const fd = new FormData();
+      fd.append("file", file);
+      const r = await fetch("/api/upload-book", {method:"POST", body: fd});
+      if(!r.ok){
+        const e = await r.json().catch(()=>({error:"فشل الرفع"}));
+        throw new Error(e.error);
+      }
+    }
+    selected.add(file.name);
+    await loadBooks();
+    msg(`✓ الكتاب "${file.name}" اترفع وجاهز`, "ok");
+  }catch(err){
+    msg(err.message || "فشل رفع الكتاب", "err");
+  }
+}
+
+const dz = $("dropzone");
+dz.onclick = () => $("fileInput").click();
+$("fileInput").onchange = e => { uploadBookFile(e.target.files[0]); e.target.value = ""; };
+dz.ondragover = e => { e.preventDefault(); dz.classList.add("drag"); };
+dz.ondragleave = () => dz.classList.remove("drag");
+dz.ondrop = e => { e.preventDefault(); dz.classList.remove("drag"); uploadBookFile(e.dataTransfer.files[0]); };
+
+// ختم الكتب المختارة
+async function stampAll(){
+  const name = $("name").value.trim();
+  const code = $("code").value.trim();
+  if(!name) return msg("اكتب اسم الطالب", "err"), $("name").focus();
+  if(!code) return msg("اكتب الكود", "err"), $("code").focus();
+  if(!selected.size) return msg("اختار كتاب واحد على الأقل", "err");
+
+  const chosen = booksList.filter(b => selected.has(b.name)).map(b => b.name);
+  const btn = $("go");
+  btn.disabled = true;
+  $("progWrap").style.display = "block";
+  $("progBar").style.width = "4%";
+  $("result").style.display = "none";
+
+  const results = [];
+  try{
+    for(let i = 0; i < chosen.length; i++){
+      msg(`بنختم (${i + 1}/${chosen.length}): ${chosen[i].replace(/\.pdf$/i,"")} ...`);
+      const r = await fetch("/api/stamp", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({book: chosen[i], name, code})
+      });
+      const data = await r.json().catch(() => ({error:"حصل خطأ"}));
+      if(!r.ok) throw new Error(data.error || "حصل خطأ");
+      results.push(data);
+      $("progBar").style.width = Math.round(((i + 1) / chosen.length) * 100) + "%";
+    }
+
+    const folderUrl = absUrl(results[0].sharePath);
+    $("resTitle").textContent = `تم تجهيز ${results.length} كتاب للطالب: ${name}`;
+    $("openFolder").href = results[0].sharePath;
+    $("copyFolder").onclick = () => copyText(folderUrl, $("copyFolder"));
+
+    const list = $("resList");
+    list.innerHTML = "";
+    for(const item of results){
+      const row = document.createElement("div");
+      row.className = "ritem";
+      row.innerHTML = '<span class="rname"></span><div style="display:flex;gap:6px"><button class="btn-sm copy-pdf" type="button">نسخ الرابط</button><a class="btn-sm accent" target="_blank" rel="noopener">تحميل</a></div>';
+      row.querySelector(".rname").textContent = item.filename;
+      const dl = row.querySelector("a");
+      dl.href = item.url;
+      dl.download = item.filename;
+      const cp = row.querySelector(".copy-pdf");
+      cp.onclick = () => copyText(absUrl(item.url), cp);
+      list.appendChild(row);
+    }
+    $("result").style.display = "block";
+    msg("✓ تم ختم كل الكتب وحفظها في فولدر الطالب", "ok");
+  }catch(err){
+    msg(err.message, "err");
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+$("go").onclick = stampAll;
+$("name").addEventListener("keydown", e => e.key === "Enter" && $("code").focus());
+$("code").addEventListener("keydown", e => e.key === "Enter" && stampAll());
+
+// فولدرات الطلاب
+function renderStudents(){
+  const q = $("searchStudent").value.trim().toLowerCase();
+  const box = $("folders");
+  box.innerHTML = "";
+  const list = studentsCache.filter(s => !q || s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q));
+  if(!list.length){
+    box.innerHTML = '<div class="empty">مفيش فولدرات طلاب لسه.</div>';
+    return;
+  }
+  for(const s of list){
+    const card = document.createElement("div");
+    card.className = "fcard";
+    card.innerHTML = `
+      <div class="fhead">
+        <div>
+          <div class="ftitle"></div>
+          <div class="fmeta"></div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn-sm accent cp-folder" type="button">نسخ رابط الفولدر</button>
+          <a class="btn-sm open-folder" target="_blank" rel="noopener">فتح ↗</a>
+          <button class="btn-sm danger del-folder" type="button">حذف</button>
+        </div>
+      </div>
+      <div class="ffiles"></div>`;
+    card.querySelector(".ftitle").textContent = s.name || s.folder;
+    card.querySelector(".fmeta").textContent = `الكود: ${s.code || "-"} · ${s.files.length} ملف`;
+    card.querySelector(".open-folder").href = s.sharePath;
+    const cpf = card.querySelector(".cp-folder");
+    cpf.onclick = () => copyText(absUrl(s.sharePath), cpf);
+    card.querySelector(".del-folder").onclick = async () => {
+      if(!confirm(`تحذف فولدر "${s.name || s.folder}" بكل ملفاته؟`)) return;
+      await fetch("/api/students/" + encodeURIComponent(s.folder), {method:"DELETE"});
+      loadStudents();
+    };
+    const ff = card.querySelector(".ffiles");
+    for(const f of s.files){
+      const row = document.createElement("div");
+      row.className = "ffile";
+      row.innerHTML = '<span class="fn"></span><div style="display:flex;gap:6px"><button class="btn-sm cp" type="button">نسخ الرابط</button><a class="btn-sm" target="_blank" rel="noopener">تحميل</a></div>';
+      row.querySelector(".fn").textContent = f.filename + ` (${fmtSize(f.size)})`;
+      const a = row.querySelector("a");
+      a.href = f.url; a.download = f.filename;
+      const cp = row.querySelector(".cp");
+      cp.onclick = () => copyText(absUrl(f.url), cp);
+      ff.appendChild(row);
+    }
+    box.appendChild(card);
+  }
+}
+
+async function loadStudents(){
+  const r = await fetch("/api/students");
+  if(!r.ok) return;
+  const data = await r.json();
+  studentsCache = data.students || [];
+  renderStudents();
+}
+
+$("searchStudent").oninput = renderStudents;
+$("refreshStudents").onclick = loadStudents;
+
+loadBooks();
+$("name").focus();
+</script>
+</body>
+</html>
+

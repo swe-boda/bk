@@ -1,0 +1,8 @@
+flask>=3.0.0
+pypdf>=6.0.0
+qrcode>=8.0
+pillow>=10.0.0
+uharfbuzz>=0.39.0
+fonttools>=4.50.0
+vercel-blob>=0.5.0
+

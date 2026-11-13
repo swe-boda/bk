@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ختم المذكرات - نسخة لكل طالب</title>
+<meta name="description" content="اعمل نسخة PDF من المذكرة باسم الطالب والباركود بتاعه">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1117; --card:rgba(255,255,255,.04); --line:rgba(255,255,255,.09);
+    --text:#e9ecf3; --muted:#8a90a2; --accent:hsl(158 64% 52%); --accent2:hsl(200 80% 60%);
+    --err:hsl(0 80% 66%);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;font-family:Cairo,Tahoma,sans-serif;color:var(--text);
+    background:radial-gradient(900px 500px at 85% -10%,hsl(158 60% 30%/.25),transparent 60%),
+               radial-gradient(800px 500px at 0% 110%,hsl(210 70% 35%/.25),transparent 60%),var(--bg);
+    display:flex;justify-content:center;padding:40px 16px}
+  main{width:100%;max-width:560px}
+  h1{font-size:26px;font-weight:800;margin:0 0 4px}
+  h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);margin:0 0 24px;font-size:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;
+    backdrop-filter:blur(10px);box-shadow:0 20px 50px rgba(0,0,0,.35)}
+  label{display:block;font-size:13px;color:var(--muted);margin:0 0 6px;font-weight:600}
+  .row{margin-bottom:16px}
+  input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);
+    background:rgba(0,0,0,.25);color:var(--text);font:inherit;font-size:16px;outline:none;transition:.2s}
+  input:focus{border-color:var(--accent);box-shadow:0 0 0 3px hsl(158 64% 52%/.18)}
+  #code{direction:ltr;text-align:left;letter-spacing:2px}
+  .books{display:grid;gap:8px;max-height:260px;overflow:auto;padding:2px}
+  .book{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;cursor:pointer;
+    border:1px solid var(--line);background:rgba(255,255,255,.02);transition:.18s;font-size:15px}
+  .book:hover{border-color:hsl(158 64% 52%/.5);transform:translateX(-2px)}
+  .book.sel{border-color:var(--accent);background:hsl(158 64% 52%/.12)}
+  .book .ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:none;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));color:#062019;font-weight:800;font-size:12px}
+  .empty{color:var(--muted);font-size:14px;line-height:1.8;padding:10px;border:1px dashed var(--line);border-radius:12px}
+  .empty code{background:rgba(255,255,255,.07);padding:1px 6px;border-radius:6px;direction:ltr;display:inline-block}
+  .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .link{background:none;border:0;color:var(--accent2);cursor:pointer;font:inherit;font-size:13px}
+  #go{width:100%;padding:14px;border:0;border-radius:12px;font:inherit;font-weight:800;font-size:17px;cursor:pointer;
+    color:#062019;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:.2s;margin-top:4px}
+  #go:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}
+  #go:disabled{opacity:.55;cursor:wait}
+  .spin{display:inline-block;width:16px;height:16px;border:2px solid #062019;border-top-color:transparent;
+    border-radius:50%;animation:r .7s linear infinite;vertical-align:-3px;margin-left:8px}
+  @keyframes r{to{transform:rotate(360deg)}}
+  #msg{min-height:22px;margin-top:12px;font-size:14px;text-align:center}
+  #msg.ok{color:var(--accent)} #msg.err{color:var(--err)}
+  h2{font-size:15px;color:var(--muted);margin:26px 4px 10px;font-weight:600}
+  #hist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+  #hist li{display:flex;justify-content:space-between;gap:10px;padding:9px 14px;border-radius:10px;
+    background:var(--card);border:1px solid var(--line);font-size:14px;animation:in .3s ease}
+  #hist li small{color:var(--muted);direction:ltr}
+  @keyframes in{from{opacity:0;transform:translateY(-4px)}}
+</style>
+</head>
+<body>
+<main>
+  <h1>ختم <span>المذكرات</span></h1>
+  <p class="sub">اكتب اسم الطالب والكود، اختار الكتاب، وخد النسخة بتاعته.</p>
+
+  <section class="card">
+    <div class="row">
+      <label for="name">اسم الطالب</label>
+      <input id="name" autocomplete="off" placeholder="مثال: طارق يسري احمد محمد حافظ">
+    </div>
+    <div class="row">
+      <label for="code">الكود (اللي في الباركود)</label>
+      <input id="code" autocomplete="off" inputmode="numeric" placeholder="31323004">
+    </div>
+    <div class="row">
+      <div class="head"><label style="margin:0">الكتاب</label>
+        <button class="link" id="refresh" type="button">↻ تحديث</button></div>
+      <div class="books" id="books"></div>
+    </div>
+    <button id="go" type="button">اعمل النسخة</button>
+    <div id="msg"></div>
+  </section>
+
+  <h2>آخر النسخ</h2>
+  <ul id="hist"></ul>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+let book = localStorage.getItem("book") || "";
+
+async function loadBooks(){
+  const r = await fetch("/api/books"); const {books} = await r.json();
+  const box = $("books"); box.innerHTML = "";
+  if(!books.length){
+    box.innerHTML = '<div class="empty">مفيش كتب لسه. حط ملفات الـ PDF في فولدر <code>books</code> اللي جنب البرنامج ودوس تحديث.</div>';
+    return;
+  }
+  if(!books.includes(book)) book = books[0];
+  for(const b of books){
+    const el = document.createElement("div");
+    el.className = "book" + (b === book ? " sel" : "");
+    el.innerHTML = '<span class="ic">PDF</span><span></span>';
+    el.lastChild.textContent = b.replace(/\.pdf$/i, "");
+    el.onclick = () => { book = b; localStorage.setItem("book", b);
+      [...box.children].forEach(c => c.classList.remove("sel")); el.classList.add("sel"); };
+    box.appendChild(el);
+  }
+}
+
+function msg(t, cls=""){ const m=$("msg"); m.textContent=t; m.className=cls; }
+
+async function go(){
+  const name = $("name").value.trim(), code = $("code").value.trim();
+  if(!name) return msg("اكتب اسم الطالب", "err"), $("name").focus();
+  if(!code) return msg("اكتب الكود", "err"), $("code").focus();
+  if(!book) return msg("اختار كتاب الأول", "err");
+  const btn = $("go"); btn.disabled = true;
+  btn.innerHTML = 'بنعمل النسخة<span class="spin"></span>'; msg("أول مرة للكتاب بتاخد وقت أطول شوية...");
+  try{
+    const r = await fetch("/api/stamp", {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({book, name, code})});
+    if(!r.ok){ const e = await r.json().catch(()=>({error:"حصل خطأ"})); throw new Error(e.error); }
+    const blob = await r.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = `${code}_${name}.pdf`; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    msg("✓ النسخة اتعملت واتنزلت (ومتسيفة كمان في فولدر out)", "ok");
+    const li = document.createElement("li");
+    li.innerHTML = "<span></span><small></small>";
+    li.firstChild.textContent = `${name} — ${book.replace(/\.pdf$/i,"")}`;
+    li.lastChild.textContent = code;
+    $("hist").prepend(li);
+    $("name").value = ""; $("code").value = ""; $("name").focus();
+  }catch(e){ msg(e.message, "err"); }
+  finally{ btn.disabled = false; btn.textContent = "اعمل النسخة"; }
+}
+
+$("go").onclick = go;
+$("refresh").onclick = loadBooks;
+$("name").addEventListener("keydown", e => e.key === "Enter" && $("code").focus());
+$("code").addEventListener("keydown", e => e.key === "Enter" && go());
+loadBooks(); $("name").focus();
+</script>
+</body>
+</html>
