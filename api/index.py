@@ -30,6 +30,36 @@ if not USE_BLOB and not ON_VERCEL:
 app = Flask(__name__, template_folder=os.path.join(ROOT, "templates"))
 app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024  # 100 MB محليا
 
+
+class _VercelPathMiddleware:
+    """يرجّع المسار الأصلي لما Vercel يعمل rewrite لـ /api/index."""
+
+    def __init__(self, wsgi_app):
+        self.wsgi_app = wsgi_app
+
+    def __call__(self, environ, start_response):
+        qs = environ.get("QUERY_STRING", "")
+        if "__path=" in qs:
+            params = urllib.parse.parse_qsl(qs, keep_blank_values=True)
+            real_path = None
+            rest = []
+            for k, v in params:
+                if k == "__path" and real_path is None:
+                    real_path = v
+                else:
+                    rest.append((k, v))
+            if real_path:
+                if not real_path.startswith("/"):
+                    real_path = "/" + real_path
+                environ["PATH_INFO"] = urllib.parse.unquote_to_bytes(real_path).decode("latin-1")
+                environ["QUERY_STRING"] = urllib.parse.urlencode(rest)
+        elif environ.get("PATH_INFO") in ("/api/index", "/api/index.py"):
+            environ["PATH_INFO"] = "/"
+        return self.wsgi_app(environ, start_response)
+
+
+app.wsgi_app = _VercelPathMiddleware(app.wsgi_app)
+
 _renderer = None
 _tpl_cache = {}
 _lock = threading.Lock()
