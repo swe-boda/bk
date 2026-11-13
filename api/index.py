@@ -18,10 +18,12 @@ import stamp_students as S  # noqa: E402
 
 BOOKS_DIR = os.path.join(ROOT, "books")
 OUT_DIR = os.path.join(ROOT, "out")
+ON_VERCEL = bool(os.environ.get("VERCEL"))
 USE_BLOB = bool(os.environ.get("BLOB_READ_WRITE_TOKEN"))
+BLOB_MISSING = ON_VERCEL and not USE_BLOB
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
 
-if not USE_BLOB:
+if not USE_BLOB and not ON_VERCEL:
     os.makedirs(BOOKS_DIR, exist_ok=True)
     os.makedirs(OUT_DIR, exist_ok=True)
 
@@ -80,6 +82,8 @@ def _blob():
 
 
 def list_books():
+    if BLOB_MISSING:
+        return []
     if USE_BLOB:
         b = _blob()
         items = []
@@ -193,6 +197,8 @@ def save_student_pdf(folder, filename, pdf_bytes):
 
 
 def list_students():
+    if BLOB_MISSING:
+        return []
     if USE_BLOB:
         b = _blob()
         grouped = {}
@@ -307,9 +313,21 @@ def home():
     return render_template(
         "index.html",
         use_blob=USE_BLOB,
+        blob_missing=BLOB_MISSING,
         auth_required=bool(ADMIN_PASSWORD),
         authed=is_authed(),
     )
+
+
+@app.get("/api/health")
+def api_health():
+    return jsonify({
+        "ok": True,
+        "vercel": ON_VERCEL,
+        "use_blob": USE_BLOB,
+        "blob_missing": BLOB_MISSING,
+        "font_exists": os.path.exists(S.FONT_PATH),
+    })
 
 
 @app.get("/s/<path:folder>")

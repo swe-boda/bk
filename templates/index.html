@@ -171,6 +171,15 @@
     <button class="tab" data-tab="students" type="button">فولدرات الطلاب والروابط</button>
   </nav>
 
+  {% if blob_missing %}
+  <div class="card" style="margin-bottom:16px; border-color:rgba(251,191,36,.45); background:rgba(251,191,36,.08)">
+    <strong style="color:var(--warn)">باقي خطوة واحدة عشان التخزين يشتغل على Vercel:</strong>
+    <p style="margin:6px 0 0; font-size:13.5px; color:var(--text); line-height:1.7">
+      ادخل على المشروع في <b>Vercel</b> ← تبويب <b>Storage</b> ← <b>Create Database</b> ← اختار <b>Blob</b> (Public) واربطه بالمشروع، وبعدين اعمل <b>Redeploy</b>.
+    </p>
+  </div>
+  {% endif %}
+
   <!-- تبويب الختم -->
   <section id="panel-stamp" class="card">
     <div class="grid2">
